@@ -1,26 +1,19 @@
 {
   "name": "react-vite-tailwind",
-  "version": "0.1.0",
-  "homepage": "https://indrastratagem.github.io/thunderboltthrone/",
-  "private": true,
-  "scripts": {
-  "start": "react-scripts start",
-  "build": "react-scripts build",
-  "test": "react-scripts test",
-  "eject": "react-scripts eject",
-  "predeploy": "npm run build",
-  "deploy": "gh-pages -d build"
-}
-},
-{
-  "name": "react-vite-tailwind",
   "private": true,
   "version": "0.0.0",
+  "homepage": "https://indrastratagem.github.io/thunderboltthrone/",
   "type": "module",
   "scripts": {
     "dev": "vite",
     "build": "vite build",
-    "preview": "vite preview"
+    "preview": "vite preview",
+      "start": "react-scripts start",
+    "build": "react-scripts build",
+    "test": "react-scripts test",
+    "eject": "react-scripts eject",
+    "predeploy": "npm run build",
+    "deploy": "gh-pages -d build"
   },
   "dependencies": {
     "@portabletext/react": "^6.0.2",
