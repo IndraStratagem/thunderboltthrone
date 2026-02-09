@@ -1,4 +1,11 @@
 {
+  "name": "thunderboltthrone",
+  "version": "0.1.0",
+  "homepage": "https://indrastratagem.github.io/thunderboltthrone/",
+  "private": true,
+  // ... other properties
+},
+{
   "name": "react-vite-tailwind",
   "private": true,
   "version": "0.0.0",
