@@ -90,28 +90,6 @@ export const blogPosts: BlogPost[] = [
     featured: true,
   },
   //paste template here
-  {
-   id: "unique-id",
-   title: "Your Post Title",
-   slug: "your-post-title",                    // URL-friendly version
-   excerpt: "A short summary of your post...", // 1-2 sentences
-   content: `
-     <p>Your HTML content goes here.</p>
-     <h2>Subheading</h2>
-     <p>More content...</p>
-     <blockquote>A quote or callout</blockquote>
-     <pre><code>// code blocks</code></pre>
-     <ul><li>List items</li></ul>
-   `,
-   coverImage: "https://images.unsplash.com/photo-...",
-   category: "Technology",                      // Category name
-   tags: ["tag1", "tag2"],
-   author: "Your Name",
-   authorAvatar: "https://...",                 // Your avatar URL
-   publishedAt: "2025-01-15",                   // YYYY-MM-DD format
-   readTime: 5,                                 // Estimated minutes
-   featured: false,                             // Set true for hero
- },
 ];
 
 export const categories = [...new Set(blogPosts.map((p) => p.category))];
