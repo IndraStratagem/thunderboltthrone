@@ -89,7 +89,7 @@ export const blogPosts: BlogPost[] = [
     readTime: 7,
     featured: true,
   },
-  //paste template here  
+  //paste template here
 ];
 
 export const categories = [...new Set(blogPosts.map((p) => p.category))];
