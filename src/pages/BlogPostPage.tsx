@@ -1,28 +1,65 @@
 import { useParams, Link, Navigate } from "react-router-dom";
-import { ArrowLeft, Clock, Calendar, Tag, Share2, Twitter, Copy, CheckCircle } from "lucide-react";
+import { ArrowLeft, Clock, Calendar, Tag, Share2, Twitter, Copy, CheckCircle, Loader2 } from "lucide-react";
 import { format } from "date-fns";
-import { useState } from "react";
-import { getPostBySlug, getLatestPosts } from "@/data/posts";
+import { useState, useEffect } from "react";
+import { client, postQuery, postsQuery } from "@/lib/sanity";
+import { PortableText } from "@portabletext/react";
 import { PostCard } from "@/components/PostCard";
 import { NewsletterForm } from "@/components/NewsletterForm";
 
 export function BlogPostPage() {
   const { slug } = useParams<{ slug: string }>();
   const [copied, setCopied] = useState(false);
-  const post = slug ? getPostBySlug(slug) : undefined;
+  const [post, setPost] = useState<any>(null);
+  const [relatedPosts, setRelatedPosts] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
 
-  if (!post) {
-    return <Navigate to="/blog" replace />;
-  }
+  // Fetch post from Sanity
+  useEffect(() => {
+    const fetchPost = async () => {
+      if (!slug) return;
 
-  const relatedPosts = getLatestPosts(4).filter((p) => p.id !== post.id).slice(0, 3);
-  const formattedDate = format(new Date(post.publishedAt), "MMMM d, yyyy");
+      try {
+        // Fetch the current post
+        const postData = await client.fetch(postQuery, { slug });
+        setPost(postData);
+
+        // Fetch all posts for related posts
+        const allPosts = await client.fetch(postsQuery);
+        const related = allPosts
+          .filter((p: any) => p.slug.current !== slug)
+          .slice(0, 3);
+        setRelatedPosts(related);
+
+        setLoading(false);
+      } catch (error) {
+        console.error("Error fetching post:", error);
+        setLoading(false);
+      }
+    };
+
+    fetchPost();
+  }, [slug]);
 
   const handleCopyLink = () => {
     navigator.clipboard.writeText(window.location.href);
     setCopied(true);
     setTimeout(() => setCopied(false), 2000);
   };
+
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-warm-50 flex items-center justify-center">
+        <Loader2 className="w-8 h-8 animate-spin text-brand-600" />
+      </div>
+    );
+  }
+
+  if (!post) {
+    return <Navigate to="/blog" replace />;
+  }
+
+  const formattedDate = format(new Date(post.publishedAt), "MMMM d, yyyy");
 
   return (
     <div className="min-h-screen bg-warm-50">
@@ -50,7 +87,7 @@ export function BlogPostPage() {
               <Calendar className="w-3 h-3" /> {formattedDate}
             </span>
             <span className="text-xs text-gray-400 flex items-center gap-1">
-              <Clock className="w-3 h-3" /> {post.readTime} min read
+              <Clock className="w-3 h-3" /> {post.readTime || 5} min read
             </span>
           </div>
 
@@ -65,13 +102,15 @@ export function BlogPostPage() {
           {/* Author & Share */}
           <div className="flex items-center justify-between flex-wrap gap-4">
             <div className="flex items-center gap-3">
-              <img
-                src={post.authorAvatar}
-                alt={post.author}
-                className="w-11 h-11 rounded-full object-cover ring-2 ring-gray-100"
-              />
+              {post.mainImage && (
+                <img
+                  src={post.mainImage.asset.url}
+                  alt={post.title}
+                  className="w-11 h-11 rounded-full object-cover ring-2 ring-gray-100"
+                />
+              )}
               <div>
-                <p className="text-sm font-semibold text-gray-900">{post.author}</p>
+                <p className="text-sm font-semibold text-gray-900">{post.author || "Indra"}</p>
                 <p className="text-xs text-gray-500">{formattedDate}</p>
               </div>
             </div>
@@ -105,49 +144,40 @@ export function BlogPostPage() {
         </header>
 
         {/* Cover Image */}
-        <div className="rounded-2xl overflow-hidden mb-10 shadow-lg">
-          <img
-            src={post.coverImage}
-            alt={post.title}
-            className="w-full h-64 sm:h-80 lg:h-96 object-cover"
-          />
-        </div>
+        {post.mainImage && (
+          <div className="rounded-2xl overflow-hidden mb-10 shadow-lg">
+            <img
+              src={post.mainImage.asset.url}
+              alt={post.title}
+              className="w-full h-64 sm:h-80 lg:h-96 object-cover"
+            />
+          </div>
+        )}
 
-        {/* Content */}
-        <div
-          className="prose prose-lg max-w-none
-            prose-headings:font-serif prose-headings:text-gray-900
-            prose-h2:text-2xl prose-h2:mt-10 prose-h2:mb-4
-            prose-p:text-gray-600 prose-p:leading-relaxed
-            prose-a:text-brand-600 prose-a:no-underline hover:prose-a:underline
-            prose-blockquote:border-l-4 prose-blockquote:border-brand-300 prose-blockquote:bg-brand-50/50 prose-blockquote:py-4 prose-blockquote:px-6 prose-blockquote:rounded-r-xl prose-blockquote:not-italic prose-blockquote:text-gray-700
-            prose-code:bg-gray-100 prose-code:px-1.5 prose-code:py-0.5 prose-code:rounded-md prose-code:text-sm prose-code:font-mono
-            prose-pre:bg-gray-900 prose-pre:text-gray-100 prose-pre:rounded-xl prose-pre:shadow-lg
-            prose-ul:space-y-2 prose-li:text-gray-600
-            prose-strong:text-gray-900
-            prose-img:rounded-xl
-            mb-10
-          "
-          dangerouslySetInnerHTML={{ __html: post.content }}
-        />
+        {/* Content - Using Portable Text */}
+        <div className="prose prose-lg max-w-none mb-10">
+          {post.body && <PortableText value={post.body} />}
+        </div>
 
         {/* Tags */}
-        <div className="flex items-center gap-2 flex-wrap mb-10 pb-10 border-b border-gray-200">
-          <Tag className="w-4 h-4 text-gray-400" />
-          {post.tags.map((tag) => (
-            <Link
-              key={tag}
-              to={`/blog?tag=${tag}`}
-              className="px-3 py-1.5 bg-gray-100 text-gray-600 text-xs font-medium rounded-lg hover:bg-brand-50 hover:text-brand-700 transition-colors"
-            >
-              #{tag}
-            </Link>
-          ))}
-        </div>
+        {post.tags && post.tags.length > 0 && (
+          <div className="flex items-center gap-2 flex-wrap mb-10 pb-10 border-b border-gray-200">
+            <Tag className="w-4 h-4 text-gray-400" />
+            {post.tags.map((tag: string) => (
+              <Link
+                key={tag}
+                to={`/blog?tag=${tag}`}
+                className="px-3 py-1.5 bg-gray-100 text-gray-600 text-xs font-medium rounded-lg hover:bg-brand-50 hover:text-brand-700 transition-colors"
+              >
+                #{tag}
+              </Link>
+            ))}
+          </div>
+        )}
 
         {/* Newsletter CTA */}
         <div className="mb-12">
-          <NewsletterForm variant="hero" source={`post-${post.slug}`} />
+          <NewsletterForm variant="hero" source={`post-${post.slug.current}`} />
         </div>
 
         {/* Related Posts */}
@@ -158,7 +188,7 @@ export function BlogPostPage() {
             </h2>
             <div className="grid sm:grid-cols-3 gap-5">
               {relatedPosts.map((p) => (
-                <PostCard key={p.id} post={p} />
+                <PostCard key={p._id} post={p} />
               ))}
             </div>
           </section>

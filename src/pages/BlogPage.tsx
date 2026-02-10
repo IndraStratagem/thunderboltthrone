@@ -1,37 +1,74 @@
-import { useState, useMemo } from "react";
-import { Search, Filter } from "lucide-react";
-import { blogPosts, categories } from "@/data/posts";
+import { useState, useMemo, useEffect } from "react";
+import { Search, Filter, Loader2 } from "lucide-react";
+import { client, postsQuery } from "@/lib/sanity";
 import { PostCard } from "@/components/PostCard";
 import { NewsletterForm } from "@/components/NewsletterForm";
 
 export function BlogPage() {
   const [searchQuery, setSearchQuery] = useState("");
   const [activeCategory, setActiveCategory] = useState("All");
+  const [posts, setPosts] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [categories, setCategories] = useState<string[]>([]);
+
+  // Fetch posts from Sanity
+  useEffect(() => {
+    const fetchPosts = async () => {
+      try {
+        const data = await client.fetch(postsQuery);
+        setPosts(data);
+        
+        // Extract unique categories
+        const uniqueCategories = Array.from(
+          new Set(data.map((p: any) => p.category))
+        ) as string[];
+        setCategories(uniqueCategories);
+        
+        setLoading(false);
+      } catch (error) {
+        console.error("Error fetching posts:", error);
+        setLoading(false);
+      }
+    };
+
+    fetchPosts();
+  }, []);
 
   const filteredPosts = useMemo(() => {
-    let posts = [...blogPosts];
+    let filtered = [...posts];
 
     // Filter by category
     if (activeCategory !== "All") {
-      posts = posts.filter((p) => p.category === activeCategory);
+      filtered = filtered.filter((p) => p.category === activeCategory);
     }
 
     // Filter by search
     if (searchQuery.trim()) {
       const query = searchQuery.toLowerCase();
-      posts = posts.filter(
+      filtered = filtered.filter(
         (p) =>
           p.title.toLowerCase().includes(query) ||
           p.excerpt.toLowerCase().includes(query) ||
-          p.tags.some((t) => t.toLowerCase().includes(query))
+          p.tags?.some((t: string) => t.toLowerCase().includes(query))
       );
     }
 
     // Sort by date
-    posts.sort((a, b) => new Date(b.publishedAt).getTime() - new Date(a.publishedAt).getTime());
+    filtered.sort(
+      (a, b) =>
+        new Date(b.publishedAt).getTime() - new Date(a.publishedAt).getTime()
+    );
 
-    return posts;
-  }, [searchQuery, activeCategory]);
+    return filtered;
+  }, [searchQuery, activeCategory, posts]);
+
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-warm-50 flex items-center justify-center">
+        <Loader2 className="w-8 h-8 animate-spin text-brand-600" />
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-warm-50">
@@ -87,7 +124,7 @@ export function BlogPage() {
             {filteredPosts.length > 0 ? (
               <div className="grid sm:grid-cols-2 gap-6">
                 {filteredPosts.map((post) => (
-                  <PostCard key={post.id} post={post} />
+                  <PostCard key={post._id} post={post} />
                 ))}
               </div>
             ) : (
@@ -109,10 +146,10 @@ export function BlogPage() {
             <div className="bg-white rounded-2xl border border-gray-100 p-6 shadow-sm">
               <h3 className="font-semibold text-gray-900 mb-4">Popular Tags</h3>
               <div className="flex flex-wrap gap-2">
-                {Array.from(new Set(blogPosts.flatMap((p) => p.tags))).map((tag) => (
+                {Array.from(new Set(posts.flatMap((p) => p.tags || []))).map((tag) => (
                   <button
-                    key={tag}
-                    onClick={() => setSearchQuery(tag)}
+                    key={tag as string}
+                    onClick={() => setSearchQuery(tag as string)}
                     className="px-3 py-1.5 bg-gray-50 text-gray-600 text-xs font-medium rounded-lg hover:bg-brand-50 hover:text-brand-700 transition-colors"
                   >
                     #{tag}
@@ -127,7 +164,7 @@ export function BlogPage() {
               <div className="space-y-3">
                 <div className="flex justify-between items-center">
                   <span className="text-sm text-gray-500">Total Articles</span>
-                  <span className="text-sm font-bold text-gray-900">{blogPosts.length}</span>
+                  <span className="text-sm font-bold text-gray-900">{posts.length}</span>
                 </div>
                 <div className="flex justify-between items-center">
                   <span className="text-sm text-gray-500">Categories</span>
@@ -136,7 +173,7 @@ export function BlogPage() {
                 <div className="flex justify-between items-center">
                   <span className="text-sm text-gray-500">Total Read Time</span>
                   <span className="text-sm font-bold text-gray-900">
-                    {blogPosts.reduce((sum, p) => sum + p.readTime, 0)} min
+                    {posts.reduce((sum, p) => sum + (p.readTime || 0), 0)} min
                   </span>
                 </div>
               </div>
