@@ -1,25 +1,7 @@
 import { useState } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { Menu, X, Zap, Twitter, Coffee, Rss } from "lucide-react";
-import { Analytics } from '@vercel/analytics/next';
  
-export default function RootLayout({
-  children,
-}: {
-  children: React.ReactNode;
-}) {
-  return (
-    <html lang="en">
-      <head>
-        <title>Next.js</title>
-      </head>
-      <body>
-        {children}
-        <Analytics />
-      </body>
-    </html>
-  );
-}
 const navLinks = [
   { to: "/", label: "Home" },
   { to: "/blog", label: "Blog" },
