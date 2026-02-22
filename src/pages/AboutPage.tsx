@@ -13,7 +13,7 @@ export function AboutPage() {
             <div className="shrink-0">
               <div className="relative">
                 <img
-                  src="Indra DP.png"
+                  src="https://pbs.twimg.com/media/HBwymBAbAAAke7c?format=jpg&name=small"
                   alt="Profile"
                   className="w-32 h-32 md:w-40 md:h-40 rounded-2xl object-cover shadow-lg ring-4 ring-white"
                 />

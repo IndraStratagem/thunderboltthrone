@@ -84,7 +84,7 @@ export const blogPosts: BlogPost[] = [
     category: "Product",
     tags: ["Introduction", "Start", "strategy"],
     author: "Indra",
-    authorAvatar: "/Indra DP.png",
+    authorAvatar: "https://pbs.twimg.com/media/HBwymBAbAAAke7c?format=jpg&name=small",
     publishedAt: "2026-02-22",
     readTime: 7,
     featured: true,
