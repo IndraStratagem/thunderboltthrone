@@ -1,4 +1,4 @@
-import { MapPin, Briefcase, GraduationCap, Heart, Coffee, Code2, Twitter, Github, Mail, ArrowRight } from "lucide-react";
+import { MapPin, Briefcase, GraduationCap, Heart, Coffee, Code2, Twitter, Github, ArrowRight } from "lucide-react";
 import { Link } from "react-router-dom";
 import { NewsletterForm } from "@/components/NewsletterForm";
 
@@ -57,10 +57,6 @@ export function AboutPage() {
                 <a href="https://buymeacoffee.com/indrastratagem" target="_blank" rel="noopener noreferrer"
                   className="w-10 h-10 bg-gray-50 rounded-xl flex items-center justify-center text-gray-500 hover:bg-gray-100 hover:text-gray-900 transition-colors">
                   <Coffee className="w-4 h-4" />
-                </a>
-                <a href="mailto:yashkashyap1303@gmail.com"
-                  className="w-10 h-10 bg-gray-50 rounded-xl flex items-center justify-center text-gray-500 hover:bg-brand-50 hover:text-brand-600 transition-colors">
-                  <Mail className="w-4 h-4" />
                 </a>
               </div>
             </div>
