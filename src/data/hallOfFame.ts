@@ -41,7 +41,7 @@ export const hallOfFameTweets: HallOfFameTweet[] = [
   {
     id: "1",
     rank: 1,
-    tweetUrl: "https://x.com/raybankachasma/status/2026952913759932495?s=20,
+    tweetUrl: "https://x.com/raybankachasma/status/2026952913759932495?s=20",
     category: "brutal-reply",
     commentary: "Gupta ji Banged paijaans with finesse",
   },
