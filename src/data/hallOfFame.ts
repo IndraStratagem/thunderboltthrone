@@ -43,7 +43,7 @@ export const hallOfFameTweets: HallOfFameTweet[] = [
     rank: 1,
     tweetUrl: "https://x.com/raybankachasma/status/2026952913759932495?s=20,
     category: "brutal-reply",
-    commentary: "Ghatak bhai ke Ghatak replies!",
+    commentary: "Gupta ji Banged paijaans with finesse",
   },
   {
     id: "2",
